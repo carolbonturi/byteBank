@@ -1,24 +1,42 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MaterialApp(
+void main() => runApp(BytebankApp());
+
+class BytebankApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: Text('Transferências'),),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-        ),
-        body: ListaTranferencias()
+        body: FormularioTransferencia(),
       ),
-    ));
+    );
+  }
+}
+
+class FormularioTransferencia extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Criando transferência'),),
+        body: Text('pitoco'));
+  }
+}
 
 class ListaTranferencias extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        ItemTransferencia(Transferencia(100.0, 1001)),
-        ItemTransferencia(Transferencia(1200.0, 2002)),
-        ItemTransferencia(Transferencia(1300.0, 3003)),
-      ],
+    return Scaffold(
+      appBar: AppBar(title: Text('Transferências'),),
+      body: Column(
+        children: <Widget>[
+          ItemTransferencia(Transferencia(100.0, 1001)),
+          ItemTransferencia(Transferencia(1200.0, 2002)),
+          ItemTransferencia(Transferencia(1300.0, 3003)),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
