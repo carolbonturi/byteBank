@@ -7,7 +7,7 @@ class BytebankApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: FormularioTransferencia(),
+        body: ListaTranferencias(),
       ),
     );
   }
@@ -23,41 +23,60 @@ class FormularioTransferencia extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Criando transferência'),),
         body: Column(
-          children: [
+          children: <Widget>[
             Editor(controlador: _controladorCampoNumeroConta, rotulo: 'Numero da conta', dica: '0000',),
             Editor(controlador: _controladorCampoValor, icone: Icons.monetization_on, rotulo: 'Valor', dica: '0.00',),
             RaisedButton(
-              onPressed: () => _criaTransferencia(),
+              onPressed: () => _criaTransferencia(context),
               child: Text('Confirmar'),
             )
           ],
         ));
   }
 
-  void _criaTransferencia() {
+  void _criaTransferencia(BuildContext context) {
     final double valor = double.tryParse(_controladorCampoValor.text);
     final int numeroConta = int.tryParse(_controladorCampoNumeroConta.text);
 
     if (valor != null && numeroConta != null) {
       final transferenciaCriada = Transferencia(valor, numeroConta);
+      debugPrint('Criando transferencia');
       debugPrint('$transferenciaCriada');
+      Navigator.pop(context, transferenciaCriada);
     }
   }
 }
 
 class ListaTranferencias extends StatelessWidget {
+  final List<Transferencia> _transferencias = List();
+
   @override
   Widget build(BuildContext context) {
+    _transferencias.add(Transferencia(100.0, 1000));
+    _transferencias.add(Transferencia(100.0, 1000));
+    _transferencias.add(Transferencia(100.0, 1000));
+    _transferencias.add(Transferencia(100.0, 1000));
     return Scaffold(
       appBar: AppBar(title: Text('Transferências'),),
-      body: Column(
-        children: <Widget>[
-          ItemTransferencia(Transferencia(100.0, 1001)),
-          ItemTransferencia(Transferencia(1200.0, 2002)),
-          ItemTransferencia(Transferencia(1300.0, 3003)),
-        ],
+      body: ListView.builder(
+        itemCount: _transferencias.length,
+        itemBuilder: (context, indice) {
+          final transferencia = _transferencias[indice];
+          return ItemTransferencia(transferencia);
+        },
+
       ),
       floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final Future<Transferencia> future = Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return FormularioTransferencia();
+          }));
+          future.then((transferenciaRecebida) {
+            debugPrint('Chegou no then do future');
+            debugPrint('$transferenciaRecebida');
+            _transferencias.add(transferenciaRecebida);
+          });
+        },
         child: Icon(Icons.add),
       ),
     );
@@ -73,27 +92,26 @@ class ItemTransferencia extends StatelessWidget {
     return Card(
         child: ListTile(
           leading: Icon(Icons.monetization_on),
-          title: Text(_transferencia._valor.toString()),
-          subtitle: Text(_transferencia._numeroConta.toString()),
+          title: Text(_transferencia.valor.toString()),
+          subtitle: Text(_transferencia.numeroConta.toString()),
         )
     );
   }
 }
 
 class Transferencia {
-  final double _valor;
-  final int _numeroConta;
+  final double valor;
+  final int numeroConta;
 
-  Transferencia(this._valor, this._numeroConta);
+  Transferencia(this.valor, this.numeroConta);
 
   @override
   String toString() {
-    return 'Transferencia{_valor: $_valor, _numeroConta: $_numeroConta}';
+    return 'Transferencia{valor: $valor, numeroConta: $numeroConta}';
   }
 }
 
 class Editor extends StatelessWidget {
-
   final TextEditingController controlador;
   final String rotulo;
   final String dica;
@@ -104,7 +122,7 @@ class Editor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+      padding: const EdgeInsets.all(16.0),
       child: TextField(
         controller: controlador,
         style: TextStyle(
